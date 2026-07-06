@@ -1,0 +1,302 @@
+openapi: 3.1.0
+info:
+  title: responses-microservice
+  version: 0.1.0
+  description: REST API wrapper for the @iqb/responses library.
+servers:
+  - url: http://localhost:3000
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    const: ok
+  /version:
+    get:
+      summary: Service and library versions
+      responses:
+        "200":
+          description: Version information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VersionInfo"
+  /codings/code:
+    post:
+      summary: Code a single response
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [response, coding]
+              properties:
+                response:
+                  type: object
+                  additionalProperties: true
+                coding:
+                  type: object
+                  additionalProperties: true
+      responses:
+        "200":
+          description: Coded response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /schemes/code:
+    post:
+      summary: Code responses with a variable coding scheme
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [unitResponses, variableCodings]
+              properties:
+                unitResponses:
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+                variableCodings:
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+      responses:
+        "200":
+          description: Coded responses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /schemes/validate:
+    post:
+      summary: Validate a coding scheme
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [baseVariables, variableCodings]
+              properties:
+                baseVariables:
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+                variableCodings:
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+      responses:
+        "200":
+          description: Validation report
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /schemes/derive-value:
+    post:
+      summary: Derive a variable value from source responses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [variableCodings, coding, sourceResponses]
+              properties:
+                variableCodings:
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+                coding:
+                  type: object
+                  additionalProperties: true
+                sourceResponses:
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+      responses:
+        "200":
+          description: Derived response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /text/code:
+    post:
+      summary: Render a code rule as text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code:
+                  type: object
+                  additionalProperties: true
+                mode:
+                  type: string
+                  default: EXTENDED
+      responses:
+        "200":
+          description: Rendered text
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: string
+                  - type: array
+                    items:
+                      type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /text/source:
+    post:
+      summary: Render a source definition as text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [variableId, sourceType]
+              properties:
+                variableId:
+                  type: string
+                sourceType:
+                  type: string
+                sources:
+                  type: array
+                  items: {}
+                parameters:
+                  type: object
+                  additionalProperties: true
+      responses:
+        "200":
+          $ref: "#/components/responses/TextResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /text/processing:
+    post:
+      summary: Render processing instructions as text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                processing:
+                  type: array
+                  items: {}
+                fragmenting:
+                  type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/TextResponse"
+  /text/var-info:
+    post:
+      summary: Render variable info as text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [varInfo]
+              properties:
+                varInfo:
+                  type: object
+                  additionalProperties: true
+      responses:
+        "200":
+          description: Rendered text
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: string
+                  - type: array
+                    items:
+                      type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+components:
+  schemas:
+    VersionInfo:
+      type: object
+      required: [service, responses]
+      properties:
+        service:
+          type: string
+        responses:
+          type: string
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        fields:
+          type: array
+          items:
+            type: string
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    TextResponse:
+      description: Rendered text
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [text]
+            properties:
+              text:
+                oneOf:
+                  - type: string
+                  - type: array
+                    items:
+                      type: string
