@@ -43,4 +43,30 @@ describe('responses-microservice routes', () => {
       fields: ['coding']
     });
   });
+
+  test('returns 400 for null required fields', async () => {
+    const response = await request(app)
+      .post('/codings/code')
+      .send({
+        response: null,
+        coding: { id: 'v1', sourceType: 'BASE', codes: [] }
+      })
+      .expect(400);
+
+    expect(response.body).toEqual({
+      error: 'Missing required request fields',
+      fields: ['response']
+    });
+  });
+
+  test('returns JSON for malformed JSON request bodies', async () => {
+    const response = await request(app)
+      .post('/codings/code')
+      .set('Content-Type', 'application/json')
+      .send('{bad json')
+      .expect(400);
+
+    expect(response.headers['content-type']).toContain('application/json');
+    expect(response.body).toEqual({ error: 'Malformed JSON request body' });
+  });
 });

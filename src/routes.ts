@@ -13,7 +13,7 @@ const isBody = (value: unknown): value is Body => (
 const bodyOf = (req: Request): Body => (isBody(req.body) ? req.body : {});
 
 const missingFields = (body: Body, fields: string[]): string[] => (
-  fields.filter(field => body[field] === undefined)
+  fields.filter(field => body[field] === undefined || body[field] === null)
 );
 
 const sendMissingFields = (res: Response, fields: string[]): void => {

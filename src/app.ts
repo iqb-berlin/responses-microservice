@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { type ErrorRequestHandler } from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { createRouter } from './routes';
@@ -8,6 +8,15 @@ const parseCorsOrigin = (value: string): boolean | string | string[] => {
     return true;
   }
   return value.split(',').map(origin => origin.trim()).filter(Boolean);
+};
+
+const jsonErrorHandler: ErrorRequestHandler = (error, _req, res, next) => {
+  if (error instanceof SyntaxError && 'body' in error) {
+    res.status(400).json({ error: 'Malformed JSON request body' });
+    return;
+  }
+
+  next(error);
 };
 
 export const createApp = (): express.Express => {
@@ -27,6 +36,8 @@ export const createApp = (): express.Express => {
     legacyHeaders: false
   }));
   app.use(createRouter());
+
+  app.use(jsonErrorHandler);
 
   app.use((_req, res) => {
     res.status(404).json({ error: 'Not found' });
