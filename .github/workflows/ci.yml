@@ -50,3 +50,37 @@ jobs:
 
       - name: Build image
         run: docker build -t responses-microservice:ci .
+
+      - name: Smoke test image
+        run: |
+          docker run --rm --detach --name responses-microservice-ci -p 3000:3000 responses-microservice:ci
+          trap 'docker stop responses-microservice-ci || true' EXIT
+
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl --fail --silent http://localhost:3000/health > /tmp/health.json; then
+              break
+            fi
+
+            if [ "$attempt" = "10" ]; then
+              docker logs responses-microservice-ci
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+          health="$(cat /tmp/health.json)"
+          version="$(curl --fail --silent http://localhost:3000/version)"
+
+          echo "$health"
+          echo "$version"
+
+          test "$health" = '{"status":"ok"}'
+          case "$version" in
+            *'"service":"'*) ;;
+            *) exit 1 ;;
+          esac
+          case "$version" in
+            *'"responses":"'*) ;;
+            *) exit 1 ;;
+          esac

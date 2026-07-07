@@ -56,6 +56,8 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
+            type=raw,value=${{ steps.versions.outputs.service }}
+            type=raw,value=responses-${{ steps.versions.outputs.responses }}
 
       - name: Build and push
         uses: docker/build-push-action@v6
