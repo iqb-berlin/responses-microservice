@@ -1,0 +1,257 @@
+{
+  "unitResponses": [
+    {
+      "id": "value",
+      "status": "CODING_COMPLETE",
+      "value": 0,
+      "subform": "0"
+    },
+    {
+      "id": "time",
+      "status": "VALUE_CHANGED",
+      "value": 4251,
+      "subform": "0"
+    },
+    {
+      "id": "total_correct",
+      "status": "VALUE_CHANGED",
+      "value": 0
+    },
+    {
+      "id": "total_wrong",
+      "status": "VALUE_CHANGED",
+      "value": 0
+    },
+    {
+      "id": "activeQuestionIndex",
+      "status": "VALUE_CHANGED",
+      "value": 2
+    },
+    {
+      "id": "value",
+      "status": "CODING_COMPLETE",
+      "value": 1,
+      "subform": "1"
+    },
+    {
+      "id": "time",
+      "status": "VALUE_CHANGED",
+      "value": 576,
+      "subform": "1"
+    },
+    {
+      "id": "value",
+      "status": "CODING_COMPLETE",
+      "value": 0,
+      "subform": "2"
+    },
+    {
+      "id": "time",
+      "status": "VALUE_CHANGED",
+      "value": 608,
+      "subform": "2"
+    }
+  ],
+  "variableCodings": [
+    {
+      "id": "value",
+      "alias": "value",
+      "label": "",
+      "sourceType": "BASE",
+      "sourceParameters": {
+        "solverExpression": "",
+        "processing": []
+      },
+      "deriveSources": [],
+      "processing": [],
+      "fragmenting": "",
+      "manualInstruction": "",
+      "codeModel": "NONE",
+      "codes": [
+        {
+          "id": 1,
+          "type": "FULL_CREDIT",
+          "label": "",
+          "score": 1,
+          "ruleSetOperatorAnd": false,
+          "ruleSets": [
+            {
+              "ruleOperatorAnd": true,
+              "rules": [
+                {
+                  "method": "NUMERIC_MATCH",
+                  "parameters": ["0"]
+                }
+              ]
+            }
+          ],
+          "manualInstruction": ""
+        },
+        {
+          "id": 0,
+          "type": "RESIDUAL_AUTO",
+          "label": "",
+          "score": 0,
+          "ruleSetOperatorAnd": false,
+          "ruleSets": [],
+          "manualInstruction": ""
+        }
+      ]
+    },
+    {
+      "id": "time",
+      "alias": "time",
+      "label": "",
+      "sourceType": "BASE",
+      "sourceParameters": {
+        "solverExpression": "",
+        "processing": []
+      },
+      "deriveSources": [],
+      "processing": [],
+      "fragmenting": "",
+      "manualInstruction": "",
+      "codeModel": "NONE",
+      "codes": [
+        {
+          "id": 1,
+          "type": "FULL_CREDIT",
+          "label": "",
+          "score": 1,
+          "ruleSetOperatorAnd": false,
+          "ruleSets": [
+            {
+              "ruleOperatorAnd": true,
+              "rules": [
+                {
+                  "method": "NUMERIC_MATCH",
+                  "parameters": ["0"]
+                }
+              ]
+            }
+          ],
+          "manualInstruction": ""
+        },
+        {
+          "id": 0,
+          "type": "RESIDUAL_AUTO",
+          "label": "",
+          "score": 0,
+          "ruleSetOperatorAnd": false,
+          "ruleSets": [],
+          "manualInstruction": ""
+        }
+      ]
+    },
+    {
+      "id": "activeQuestionIndex",
+      "alias": "activeQuestionIndex",
+      "label": "",
+      "sourceType": "BASE_NO_VALUE",
+      "sourceParameters": {
+        "solverExpression": "",
+        "processing": []
+      },
+      "deriveSources": [],
+      "processing": [],
+      "fragmenting": "",
+      "manualInstruction": "",
+      "codeModel": "NONE",
+      "codes": []
+    },
+    {
+      "id": "total_correct",
+      "alias": "total_correct",
+      "label": "",
+      "sourceType": "BASE",
+      "sourceParameters": {
+        "solverExpression": "",
+        "processing": []
+      },
+      "deriveSources": [],
+      "processing": [],
+      "fragmenting": "",
+      "manualInstruction": "",
+      "codeModel": "NONE",
+      "codes": []
+    },
+    {
+      "id": "total_wrong",
+      "alias": "total_wrong",
+      "label": "",
+      "sourceType": "BASE",
+      "sourceParameters": {
+        "solverExpression": "",
+        "processing": []
+      },
+      "deriveSources": [],
+      "processing": [],
+      "fragmenting": "",
+      "manualInstruction": "",
+      "codeModel": "NONE",
+      "codes": []
+    },
+    {
+      "id": "total_wrong",
+      "alias": "total_wrong",
+      "label": "",
+      "sourceType": "BASE",
+      "sourceParameters": {
+        "solverExpression": "",
+        "processing": []
+      },
+      "deriveSources": [],
+      "processing": [],
+      "fragmenting": "",
+      "manualInstruction": "",
+      "codeModel": "NONE",
+      "codes": []
+    },
+    {
+      "id": "d_1738676396123",
+      "alias": "a1",
+      "label": "",
+      "sourceType": "SUM_CODE",
+      "sourceParameters": {
+        "solverExpression": "",
+        "processing": []
+      },
+      "deriveSources": ["time"],
+      "processing": [],
+      "codeModel": "NONE",
+      "manualInstruction": "",
+      "codes": [
+        {
+          "id": 1,
+          "type": "FULL_CREDIT",
+          "label": "",
+          "score": 1,
+          "ruleSetOperatorAnd": false,
+          "ruleSets": [
+            {
+              "ruleOperatorAnd": true,
+              "rules": [
+                {
+                  "method": "NUMERIC_MATCH",
+                  "parameters": ["0"]
+                }
+              ]
+            }
+          ],
+          "manualInstruction": ""
+        },
+        {
+          "id": 0,
+          "type": "RESIDUAL_AUTO",
+          "label": "",
+          "score": 0,
+          "ruleSetOperatorAnd": false,
+          "ruleSets": [],
+          "manualInstruction": ""
+        }
+      ],
+      "page": "",
+      "fragmenting": ""
+    }
+  ]
+}

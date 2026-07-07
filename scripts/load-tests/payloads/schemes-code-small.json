@@ -1,0 +1,48 @@
+{
+  "unitResponses": [
+    {
+      "id": "b1",
+      "status": "VALUE_CHANGED",
+      "value": ["3", "9", "1", "2"]
+    }
+  ],
+  "variableCodings": [
+    {
+      "id": "b1",
+      "sourceType": "BASE",
+      "processing": ["SORT_ARRAY"],
+      "codes": [
+        {
+          "id": 1,
+          "score": 1,
+          "ruleSets": [
+            {
+              "valueArrayPos": 1,
+              "rules": [
+                {
+                  "method": "MATCH",
+                  "parameters": ["2"]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "score": 2,
+          "ruleSets": [
+            {
+              "valueArrayPos": 1,
+              "rules": [
+                {
+                  "method": "MATCH",
+                  "parameters": ["3"]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

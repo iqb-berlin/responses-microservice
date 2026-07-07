@@ -1,0 +1,238 @@
+name: Load Test Responses Schemes Code
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Base URL of an already running responses microservice. Leave empty to test this repo locally.
+        required: false
+        default: ''
+        type: string
+      profile:
+        description: k6 profile
+        required: true
+        default: baseline
+        type: choice
+        options:
+          - smoke
+          - baseline
+          - spike
+          - soak
+          - payload_scaling
+          - saturation_medium
+          - saturation_complex
+          - saturation_complex_x5
+          - saturation_complex_x10
+      payload:
+        description: Payload class or auto for profile default
+        required: true
+        default: auto
+        type: choice
+        options:
+          - auto
+          - small
+          - medium
+          - complex
+      scale_factor:
+        description: Synthetic payload multiplier, empty uses the profile default
+        required: false
+        default: ''
+        type: string
+      rate:
+        description: Override fixed arrival rate for soak or payload_scaling
+        required: false
+        default: ''
+        type: string
+      duration:
+        description: Override duration for smoke, soak or payload_scaling
+        required: false
+        default: ''
+        type: string
+      saturation_start_rate:
+        description: Override initial arrival rate for saturation profiles
+        required: false
+        default: ''
+        type: string
+      saturation_targets:
+        description: Override saturation target rates as comma-separated integers
+        required: false
+        default: ''
+        type: string
+      saturation_ramp_duration:
+        description: Override per-step ramp duration for saturation profiles
+        required: false
+        default: ''
+        type: string
+      saturation_hold_duration:
+        description: Override per-step hold duration for saturation profiles
+        required: false
+        default: ''
+        type: string
+      parse_response:
+        description: Parse and validate JSON response body
+        required: true
+        default: true
+        type: boolean
+      max_failure_rate:
+        description: Threshold for http_req_failed
+        required: true
+        default: '0.01'
+        type: string
+      p95_ms:
+        description: Threshold for http_req_duration p95
+        required: true
+        default: '1000'
+        type: string
+      p99_ms:
+        description: Threshold for http_req_duration p99
+        required: true
+        default: '1500'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build local service
+        if: ${{ inputs.base_url == '' }}
+        run: npm run build
+
+      - name: Prepare artifacts directory
+        run: mkdir -p artifacts/k6
+
+      - name: Start local service
+        if: ${{ inputs.base_url == '' }}
+        run: |
+          RATE_LIMIT_MAX=1000000 npm start > artifacts/k6/service.log 2>&1 &
+          echo "SERVICE_PID=$!" >> "$GITHUB_ENV"
+          echo "LOAD_TEST_BASE_URL=http://localhost:3000" >> "$GITHUB_ENV"
+
+      - name: Use external service
+        if: ${{ inputs.base_url != '' }}
+        env:
+          BASE_URL_INPUT: ${{ inputs.base_url }}
+        run: echo "LOAD_TEST_BASE_URL=${BASE_URL_INPUT}" >> "$GITHUB_ENV"
+
+      - name: Wait for local service
+        if: ${{ inputs.base_url == '' }}
+        run: |
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl --fail --silent http://localhost:3000/health > /tmp/health.json; then
+              cat /tmp/health.json
+              exit 0
+            fi
+
+            if [ "$attempt" = "10" ]; then
+              cat artifacts/k6/service.log || true
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+      - name: Set up k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Run k6 load test
+        id: k6
+        continue-on-error: true
+        env:
+          INPUT_PROFILE: ${{ inputs.profile }}
+          INPUT_PAYLOAD: ${{ inputs.payload }}
+          INPUT_SCALE_FACTOR: ${{ inputs.scale_factor }}
+          INPUT_RATE: ${{ inputs.rate }}
+          INPUT_DURATION: ${{ inputs.duration }}
+          INPUT_SATURATION_START_RATE: ${{ inputs.saturation_start_rate }}
+          INPUT_SATURATION_TARGETS: ${{ inputs.saturation_targets }}
+          INPUT_SATURATION_RAMP_DURATION: ${{ inputs.saturation_ramp_duration }}
+          INPUT_SATURATION_HOLD_DURATION: ${{ inputs.saturation_hold_duration }}
+          INPUT_PARSE_RESPONSE: ${{ inputs.parse_response }}
+          INPUT_MAX_FAILURE_RATE: ${{ inputs.max_failure_rate }}
+          INPUT_P95_MS: ${{ inputs.p95_ms }}
+          INPUT_P99_MS: ${{ inputs.p99_ms }}
+        run: |
+          export BASE_URL="${LOAD_TEST_BASE_URL}"
+          export PROFILE="${INPUT_PROFILE}"
+          export PARSE_RESPONSE="${INPUT_PARSE_RESPONSE}"
+          export MAX_FAILURE_RATE="${INPUT_MAX_FAILURE_RATE}"
+          export P95_MS="${INPUT_P95_MS}"
+          export P99_MS="${INPUT_P99_MS}"
+          export SUMMARY_STDOUT=false
+          export SUMMARY_JSON=artifacts/k6/summary.json
+          export SUMMARY_MD=artifacts/k6/summary.md
+
+          if [ "${INPUT_PAYLOAD}" != "auto" ]; then
+            export PAYLOAD="${INPUT_PAYLOAD}"
+          fi
+
+          if [ -n "${INPUT_SCALE_FACTOR}" ]; then
+            export SCALE_FACTOR="${INPUT_SCALE_FACTOR}"
+          fi
+
+          if [ -n "${INPUT_RATE}" ]; then
+            export RATE="${INPUT_RATE}"
+          fi
+
+          if [ -n "${INPUT_DURATION}" ]; then
+            export DURATION="${INPUT_DURATION}"
+          fi
+
+          if [ -n "${INPUT_SATURATION_START_RATE}" ]; then
+            export SATURATION_START_RATE="${INPUT_SATURATION_START_RATE}"
+          fi
+
+          if [ -n "${INPUT_SATURATION_TARGETS}" ]; then
+            export SATURATION_TARGETS="${INPUT_SATURATION_TARGETS}"
+          fi
+
+          if [ -n "${INPUT_SATURATION_RAMP_DURATION}" ]; then
+            export SATURATION_RAMP_DURATION="${INPUT_SATURATION_RAMP_DURATION}"
+          fi
+
+          if [ -n "${INPUT_SATURATION_HOLD_DURATION}" ]; then
+            export SATURATION_HOLD_DURATION="${INPUT_SATURATION_HOLD_DURATION}"
+          fi
+
+          ./scripts/load-tests/run-responses-schemes-code.sh
+
+      - name: Publish markdown summary
+        if: always()
+        run: |
+          if [ -f artifacts/k6/summary.md ]; then
+            cat artifacts/k6/summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No k6 markdown summary was generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload k6 artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: responses-schemes-code-${{ inputs.profile }}-${{ inputs.payload }}-x${{ inputs.scale_factor != '' && inputs.scale_factor || 'auto' }}
+          path: artifacts/k6/
+          if-no-files-found: warn
+
+      - name: Stop local service
+        if: always() && env.SERVICE_PID != ''
+        run: kill "$SERVICE_PID" || true
+
+      - name: Fail workflow when k6 failed
+        if: always() && steps.k6.outcome == 'failure'
+        run: exit 1
