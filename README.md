@@ -213,6 +213,12 @@ npm audit --omit=dev
 
 CI also builds the Docker image and smoke-tests `/health` and `/version`.
 
+## Load Testing
+
+k6 load tests for `POST /schemes/code` live in
+[docs/load-testing/responses-schemes-code-k6.md](./docs/load-testing/responses-schemes-code-k6.md).
+They can run against a locally started service or an already deployed base URL.
+
 ## Support
 
 Please use GitHub issues for questions and bug reports. Include the service

@@ -16,6 +16,7 @@
     "build": "tsc",
     "check": "npm run lint && npm test && npm run build && npm audit --omit=dev",
     "lint": "eslint .",
+    "load-test:schemes-code": "./scripts/load-tests/run-responses-schemes-code.sh",
     "start": "node dist/server.js",
     "test": "vitest run"
   },
