@@ -55,7 +55,7 @@ const REQUEST_PARAMS = {
   tags: REQUEST_TAGS,
   timeout: RESPONSE_TIMEOUT
 };
-const REQUEST_URL = `${BASE_URL}${ENDPOINT}`;
+const REQUEST_URL = `${trimTrailingSlash(BASE_URL)}${ENDPOINT}`;
 const MIN_OK_RATE = Math.max(0, 1 - MAX_FAILURE_RATE).toFixed(4);
 const SCENARIO = buildScenario(PROFILE);
 

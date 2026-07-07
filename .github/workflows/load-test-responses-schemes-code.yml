@@ -128,7 +128,13 @@ jobs:
         if: ${{ inputs.base_url != '' }}
         env:
           BASE_URL_INPUT: ${{ inputs.base_url }}
-        run: echo "LOAD_TEST_BASE_URL=${BASE_URL_INPUT}" >> "$GITHUB_ENV"
+        run: |
+          delimiter="LOAD_TEST_BASE_URL_$(date +%s%N)"
+          {
+            printf 'LOAD_TEST_BASE_URL<<%s\n' "$delimiter"
+            printf '%s\n' "$BASE_URL_INPUT"
+            printf '%s\n' "$delimiter"
+          } >> "$GITHUB_ENV"
 
       - name: Wait for local service
         if: ${{ inputs.base_url == '' }}
